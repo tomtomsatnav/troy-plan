@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Troy Plan v3</title>
+<style>
+  :root{
+    --bg:#EDEAE3; --panel:#FFFFFF; --ink:#23211C; --muted:#6F6A60;
+    --line:#DDD8CD; --bronze:#A86B2D; --bronze-soft:#F3E7D8;
+    --aegean:#2E6475; --aegean-soft:#E2EEF1;
+    --good:#2F7D4F; --warn:#B3551F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:18px 14px 40px;max-width:760px;margin:0 auto}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:26px;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.5}
+  .tabs{display:flex;gap:6px;margin:18px 0 14px}
+  .tab{flex:1;text-align:center;padding:9px 2px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none}
+  .tab.on{background:var(--ink);color:#FBF9F4;border-color:var(--ink)}
+  .days{display:flex;gap:5px;margin-bottom:14px}
+  .day{flex:1;text-align:center;padding:8px 0 7px;border-radius:9px;border:1px solid var(--line);background:var(--panel);cursor:pointer;user-select:none}
+  .day .d{font-size:12.5px;font-weight:600}
+  .day .t{font-size:9px;letter-spacing:.4px;text-transform:uppercase;margin-top:2px}
+  .day.lift .t{color:var(--bronze)} .day.steps .t{color:var(--aegean)}
+  .day.on{border-width:2px}
+  .day.on.lift{border-color:var(--bronze);background:var(--bronze-soft)}
+  .day.on.steps{border-color:var(--aegean);background:var(--aegean-soft)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+  .dayhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .dayhead .name{font-family:Georgia,serif;font-size:19px;font-weight:600}
+  .badge{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:3px 9px;border-radius:99px}
+  .badge.lift{background:var(--bronze-soft);color:var(--bronze)}
+  .badge.steps{background:var(--aegean-soft);color:var(--aegean)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  .stat .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px}
+  .stat .val{font-size:20px;font-weight:600}
+  .stat .val small{font-size:12px;font-weight:400;color:var(--muted)}
+  .bar{height:7px;border-radius:99px;background:var(--line);margin-top:6px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px}
+  .meal{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+  .meal:first-of-type{border-top:none}
+  .meal .slot{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .meal .nm{font-size:14.5px;font-weight:600;margin:2px 0}
+  .meal .ds{font-size:12.5px;color:var(--muted);line-height:1.45}
+  .meal .tip{font-size:12px;color:var(--bronze);margin-top:4px;line-height:1.4}
+  .macros{text-align:right;white-space:nowrap;flex-shrink:0}
+  .macros .k{font-size:14px;font-weight:600}
+  .macros .p{font-size:12px;color:var(--aegean);font-weight:600;margin-top:2px}
+  .note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  h3{font-family:Georgia,serif;font-size:16px;margin-bottom:8px}
+  h4{font-size:13px;margin:14px 0 4px}
+  .wk{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-top:1px solid var(--line);cursor:pointer;user-select:none}
+  .wk:first-of-type{border-top:none}
+  .wk .wn{font-size:14.5px;font-weight:600}
+  .wk .wd{font-size:11.5px;color:var(--muted)}
+  .ex{font-size:13px;padding:6px 0 6px 4px;display:flex;justify-content:space-between;border-bottom:1px solid var(--line)}
+  .ex span:last-child{color:var(--muted);white-space:nowrap;padding-left:10px}
+  .exwrap{display:none;padding-bottom:8px}
+  .exwrap.open{display:block}
+  .step{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+  .step:first-of-type{border-top:none}
+  .step .n{flex-shrink:0;width:26px;height:26px;border-radius:99px;background:var(--bronze-soft);color:var(--bronze);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .step .b{font-size:13px;line-height:1.55}
+  .step .b b{display:block;font-size:14px;margin-bottom:2px}
+  .grp{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin:14px 0 6px}
+  .grp.add{color:var(--good)} .grp.down{color:var(--aegean)} .grp.same{color:var(--muted)}
+  .item{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .item span:last-child{color:var(--muted);font-size:12.5px;text-align:right;padding-left:12px}
+  .hide{display:none}
+</style>
+</head>
+<body>
+
+<h1>Troy Plan v3</h1>
+<div class="sub">All-chicken budget edition. ULUL lifting Mon · Tue · Thu · Fri, 10k steps every day, no running. Two prep sessions a week, almost no washing up.</div>
+
+<div class="tabs">
+  <div class="tab on" data-v="plan">Meals</div>
+  <div class="tab" data-v="train">Training</div>
+  <div class="tab" data-v="prep">Prep</div>
+  <div class="tab" data-v="basket">Basket</div>
+</div>
+
+<div id="view-plan">
+  <div class="days" id="dayrail"></div>
+  <div class="card" id="daycard"></div>
+</div>
+
+<div id="view-train" class="hide">
+  <div class="card">
+    <h3>Upper / Lower / Upper / Lower</h3>
+    <div class="sub" style="margin-bottom:10px">Mon · Tue lift, Wed off, Thu · Fri lift, weekend off. Tap a session to expand. Progress by adding reps within the range, then weight. 2–3 min rest on the big lifts, 60–90s on the rest.</div>
+    <div class="wk" onclick="tog(0)"><div><div class="wn">Upper A — Monday</div><div class="wd">Horizontal push/pull focus · ~55 min</div></div><span>▾</span></div>
+    <div class="exwrap" id="w0">
+      <div class="ex"><span>Barbell bench press</span><span>4 × 6–8</span></div>
+      <div class="ex"><span>Chest-supported or barbell row</span><span>4 × 8–10</span></div>
+      <div class="ex"><span>Seated dumbbell shoulder press</span><span>3 × 8–10</span></div>
+      <div class="ex"><span>Lat pulldown</span><span>3 × 10–12</span></div>
+      <div class="ex"><span>Cable lateral raise</span><span>3 × 12–15</span></div>
+      <div class="ex"><span>EZ-bar curl + rope pushdown (superset)</span><span>3 × 10–12</span></div>
+    </div>
+    <div class="wk" onclick="tog(1)"><div><div class="wn">Lower A — Tuesday</div><div class="wd">Squat focus · ~50 min</div></div><span>▾</span></div>
+    <div class="exwrap" id="w1">
+      <div class="ex"><span>Back squat</span><span>4 × 6–8</span></div>
+      <div class="ex"><span>Romanian deadlift</span><span>3 × 8–10</span></div>
+      <div class="ex"><span>Leg press</span><span>3 × 10–12</span></div>
+      <div class="ex"><span>Lying leg curl</span><span>3 × 12</span></div>
+      <div class="ex"><span>Standing calf raise</span><span>4 × 12–15</span></div>
+      <div class="ex"><span>Plank</span><span>3 × 45–60s</span></div>
+    </div>
+    <div class="wk" onclick="tog(2)"><div><div class="wn">Upper B — Thursday</div><div class="wd">Vertical push/pull focus · ~55 min</div></div><span>▾</span></div>
+    <div class="exwrap" id="w2">
+      <div class="ex"><span>Overhead press</span><span>4 × 6–8</span></div>
+      <div class="ex"><span>Pull-ups (assisted or weighted as needed)</span><span>4 × 6–10</span></div>
+      <div class="ex"><span>Incline dumbbell press</span><span>3 × 8–10</span></div>
+      <div class="ex"><span>Seated cable row</span><span>3 × 10–12</span></div>
+      <div class="ex"><span>Rear delt fly</span><span>3 × 12–15</span></div>
+      <div class="ex"><span>Hammer curl + overhead extension (superset)</span><span>3 × 10–12</span></div>
+    </div>
+    <div class="wk" onclick="tog(3)"><div><div class="wn">Lower B — Friday</div><div class="wd">Hinge focus · ~50 min</div></div><span>▾</span></div>
+    <div class="exwrap" id="w3">
+      <div class="ex"><span>Deadlift (conventional or trap bar)</span><span>3 × 5</span></div>
+      <div class="ex"><span>Bulgarian split squat</span><span>3 × 8–10 / leg</span></div>
+      <div class="ex"><span>Leg extension</span><span>3 × 12</span></div>
+      <div class="ex"><span>Seated calf raise</span><span>4 × 12–15</span></div>
+      <div class="ex"><span>Hanging leg raise</span><span>3 × 8–12</span></div>
+    </div>
+    <div class="note">Cardio: 10,000 steps every day — outside when you can, treadmill when you can't. On Wed/Sat/Sun an incline treadmill walk (10–12% · 5km/h · 25–30 min) covers a big chunk of the steps and keeps the deficit moving without eating into recovery. Bulgarian split squats on Friday double up with the split squats already in your mobility routine.</div>
+  </div>
+</div>
+
+<div id="view-prep" class="hide">
+  <div class="card">
+    <h3>Two prep sessions, three things to wash</h3>
+    <div class="step"><div class="n">1</div><div class="b"><b>Sunday — ~50 minutes</b>Rice cooker: full week's rice (630g dry = 7 × 90g portions). Spread to cool within the hour, box up, freeze all 7. While it cooks: brown 300g mince with paprika + cumin in the wok, scramble in 6 eggs, toss through 3 thawed rice portions + peas — that's Mon–Wed lunches boxed. Air-fry 3 breasts + sweet potato/wedges for Mon–Wed dinners if you want dinners boxed too, or leave dinners to the air fryer fresh (10 min, foil liner, nothing to wash). Load 3 Creami tubs into the freezer.</div></div>
+    <div class="step"><div class="n">2</div><div class="b"><b>Wednesday — ~30 minutes</b>Same again for Thu–Sun: 400g mince, 8 eggs, 4 rice portions, 4 Creami tubs. Cooked food sits in the fridge a maximum of 3 days, which is why the week splits 3 + 4.</div></div>
+    <div class="step"><div class="n">3</div><div class="b"><b>Every day — zero pans</b>Breakfast is a bowl and a spoon. Lunch is a microwave box (piping hot, reheat once only). Dinner is the air fryer with a liner. Creami spins in its own tub. The only real washing up all week: the wok twice, the rice cooker pot once, the air fryer basket.</div></div>
+    <div class="note">Rice safety: cool it fast (within 1 hour), freeze or fridge straight away, reheat until piping hot, never reheat twice. Frozen portions microwave from frozen in ~3 minutes and are the safest way to batch rice.</div>
+  </div>
+</div>
+
+<div id="view-basket" class="hide">
+  <div class="card">
+    <h3>Waitrose order — all-chicken week</h3>
+    <div class="grp add">In</div>
+    <div class="item"><span>Chicken breast fillets 1kg × 2</span><span>1.4kg dinners · freeze the spare 600g</span></div>
+    <div class="item"><span>Chicken mince 500g × 2</span><span>700g lunches · freeze the spare</span></div>
+    <div class="item"><span>Eggs — 10-pack + 6-pack</span><span>14 in lunches, 2 spare</span></div>
+    <div class="item"><span>Essential fat free Greek-style yoghurt 1kg × 5</span><span>swap from No.1 500g tubs — near-identical macros, noticeably cheaper per kg</span></div>
+    <div class="item"><span>Frozen garden peas 1kg</span><span>80g × 7 lunches</span></div>
+    <div class="item"><span>Bananas ~18 (3 bunches)</span><span>breakfast, Creami, pre-gym</span></div>
+    <div class="item"><span>Sweet potatoes ~1.4kg</span><span>4 lift-day dinners</span></div>
+    <div class="item"><span>White potatoes ~1.1kg</span><span>3 steps-day dinners</span></div>
+    <div class="item"><span>Tenderstem broccoli × 2</span><span>every dinner</span></div>
+    <div class="grp down">Out</div>
+    <div class="item"><span>Salmon, haddock × 2, prawns × 3</span><span>~£20+ of seafood removed</span></div>
+    <div class="item"><span>Wholemeal wraps</span><span>breakfast is now the yoghurt bowl daily</span></div>
+    <div class="grp same">Cupboard</div>
+    <div class="item"><span>Jasmine rice (own stock), olive oil, soy, smoked paprika, cumin, honey, garlic, lemons</span><span>no purchase needed</span></div>
+    <div class="note">Rough cost vs v2: in the region of £15–20 cheaper — seafood was the most expensive thing in the basket and the yoghurt swap saves a few pounds more. Prices are estimates until the trolley is built. One trade-off worth knowing: the omega-3 from the salmon is gone again; a £1.50 tin of mackerel once or twice a week is the cheapest fix if you ever want it back.</div>
+  </div>
+</div>
+
+<script>
+const M = {
+  bowlB:  {slot:"Breakfast", nm:"Greek yoghurt bowl", ds:"300g fat free Greek yoghurt, banana, honey", k:330, p:32},
+  lunchFR:{slot:"Lunch", nm:"Smoky chicken fried rice", ds:"90g jasmine rice (dry), 2 eggs, 100g chicken mince, 80g peas — paprika + cumin", k:700, p:44, tip:"Batch-cooked. Season half the week's boxes soy-garlic instead so it's two meals, not one."},
+  liftD:  {slot:"Dinner", nm:"Chicken + sweet potato", ds:"200g breast, 350g sweet potato, tenderstem — air fryer", k:630, p:56, tip:"Foil liner in the basket = nothing to wash."},
+  stepD:  {slot:"Dinner", nm:"Chicken + air-fryer wedges", ds:"200g breast, 350g white potato wedges, tenderstem", k:600, p:58},
+  s1Lift: {slot:"Snack 1 · pre-gym", nm:"Yoghurt, honey + banana", ds:"200g Greek yoghurt — 45 min before training", k:240, p:22},
+  s1:     {slot:"Snack 1", nm:"Yoghurt + honey", ds:"200g Greek yoghurt", k:135, p:21},
+  creami: {slot:"Snack 2", nm:"Creami protein ice cream", ds:"250g Greek yoghurt, banana, honey — frozen + spun", k:300, p:27}
+};
+const DAYS = [
+  {d:"Mon", full:"Monday — Upper A", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
+  {d:"Tue", full:"Tuesday — Lower A", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
+  {d:"Wed", full:"Wednesday — Steps", type:"steps", tk:2050, meals:[M.bowlB,M.lunchFR,M.s1,M.stepD,M.creami]},
+  {d:"Thu", full:"Thursday — Upper B", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
+  {d:"Fri", full:"Friday — Lower B", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
+  {d:"Sat", full:"Saturday — Steps", type:"steps", tk:2050, meals:[M.bowlB,M.lunchFR,M.s1,M.stepD,M.creami]},
+  {d:"Sun", full:"Sunday — Steps + prep", type:"steps", tk:2050, meals:[M.bowlB,M.lunchFR,M.s1,M.stepD,M.creami]}
+];
+const TP = 170;
+const TYPELBL = {lift:"Lift day", steps:"Steps day"};
+const TYPECOL = {lift:"var(--bronze)", steps:"var(--aegean)"};
+let active = 0;
+
+function renderRail(){
+  document.getElementById("dayrail").innerHTML = DAYS.map((x,i)=>
+    `<div class="day ${x.type} ${i===active?'on':''}" onclick="sel(${i})">
+       <div class="d">${x.d}</div><div class="t">${x.type}</div>
+     </div>`).join("");
+}
+function renderDay(){
+  const d = DAYS[active];
+  const tk = d.meals.reduce((a,m)=>a+m.k,0);
+  const tp = d.meals.reduce((a,m)=>a+m.p,0);
+  const pk = Math.min(100, Math.round(tk/d.tk*100));
+  const pp = Math.min(100, Math.round(tp/TP*100));
+  const hitP = tp >= TP-4;
+  const meals = d.meals.map(m=>`
+    <div class="meal">
+      <div>
+        <div class="slot">${m.slot}</div>
+        <div class="nm">${m.nm}</div>
+        <div class="ds">${m.ds}</div>
+        ${m.tip?`<div class="tip">${m.tip}</div>`:""}
+      </div>
+      <div class="macros"><div class="k">${m.k} kcal</div><div class="p">${m.p}g P</div></div>
+    </div>`).join("");
+  document.getElementById("daycard").innerHTML = `
+    <div class="dayhead">
+      <span class="name">${d.full}</span>
+      <span class="badge ${d.type}">${TYPELBL[d.type]}</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="lbl">Calories</div>
+        <div class="val">${tk.toLocaleString()} <small>/ ${d.tk.toLocaleString()}</small></div>
+        <div class="bar"><i style="width:${pk}%;background:${TYPECOL[d.type]}"></i></div>
+      </div>
+      <div class="stat"><div class="lbl">Protein</div>
+        <div class="val" style="color:${hitP?'var(--good)':'var(--warn)'}">${tp}g <small>/ ${TP}g</small></div>
+        <div class="bar"><i style="width:${pp}%;background:${hitP?'var(--good)':'var(--warn)'}"></i></div>
+      </div>
+    </div>
+    ${meals}
+    <div class="note">Rice: Mai Thai AAA Jasmine, 377 kcal/100g dry — your own stock. Chicken and yoghurt figures based on Waitrose products; peas, potato and banana from standard UK values. 10g olive oil per cooked dinner is included.</div>`;
+}
+function sel(i){ active=i; renderRail(); renderDay(); }
+function tog(i){ document.getElementById("w"+i).classList.toggle("open"); }
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+    t.classList.add("on");
+    ["plan","train","prep","basket"].forEach(v=>
+      document.getElementById("view-"+(v==="plan"?"plan":v)).classList.toggle("hide", v!==t.dataset.v));
+  };
+});
+renderRail(); renderDay();
+</script>
+</body>
+</html>

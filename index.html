@@ -68,12 +68,31 @@
   .item{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line)}
   .item span:last-child{color:var(--muted);font-size:12.5px;text-align:right;padding-left:12px}
   .hide{display:none}
+  /* progressive overload tracker */
+  .exrow{padding:10px 0;border-bottom:1px solid var(--line)}
+  .exrow:last-child{border-bottom:none}
+  .extop{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .exname{font-size:13.5px;font-weight:600}
+  .exscheme{color:var(--muted);font-size:12px;white-space:nowrap;padding-left:10px}
+  .log{display:flex;gap:6px;align-items:center;margin-top:7px;flex-wrap:wrap}
+  .log label{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .log input{width:58px;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font-family:inherit}
+  .log input:focus{outline:none;border-color:var(--bronze)}
+  .log .save{font-size:12px;font-weight:600;padding:5px 12px;border:none;border-radius:7px;background:var(--ink);color:#FBF9F4;cursor:pointer}
+  .log .save:active{transform:translateY(1px)}
+  .last{font-size:11.5px;color:var(--muted);margin-top:5px;min-height:14px}
+  .last b{color:var(--good);font-weight:600}
+  .last .up{color:var(--good)} .last .down{color:var(--warn)}
+  .synced{font-size:11px;color:var(--muted);margin:4px 0 10px;display:flex;align-items:center;gap:8px}
+  .synced .dot{width:7px;height:7px;border-radius:99px;background:var(--muted)}
+  .synced .dot.on{background:var(--good)}
+  .exportbtn{font-size:11px;padding:4px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);cursor:pointer}
 </style>
 </head>
 <body>
 
 <h1>Troy Plan v3</h1>
-<div class="sub">All-chicken budget edition. ULUL lifting Mon · Tue · Thu · Fri, 10k steps every day, no running. Two prep sessions a week, almost no washing up.</div>
+<div class="sub">All-chicken budget edition. ULUL lifting Mon · Tue · Thu · Fri, 10k steps every day, no running. Two hard sets to failure per exercise, weights tracked for progressive overload. Two prep sessions a week, almost no washing up.</div>
 
 <div class="tabs">
   <div class="tab on" data-v="plan">Meals</div>
@@ -90,43 +109,10 @@
 <div id="view-train" class="hide">
   <div class="card">
     <h3>Upper / Lower / Upper / Lower</h3>
-    <div class="sub" style="margin-bottom:10px">Mon · Tue lift, Wed off, Thu · Fri lift, weekend off. Tap a session to expand. Progress by adding reps within the range, then weight. 2–3 min rest on the big lifts, 60–90s on the rest.</div>
-    <div class="wk" onclick="tog(0)"><div><div class="wn">Upper A — Monday</div><div class="wd">Horizontal push/pull focus · ~55 min</div></div><span>▾</span></div>
-    <div class="exwrap" id="w0">
-      <div class="ex"><span>Barbell bench press</span><span>4 × 6–8</span></div>
-      <div class="ex"><span>Chest-supported or barbell row</span><span>4 × 8–10</span></div>
-      <div class="ex"><span>Seated dumbbell shoulder press</span><span>3 × 8–10</span></div>
-      <div class="ex"><span>Lat pulldown</span><span>3 × 10–12</span></div>
-      <div class="ex"><span>Cable lateral raise</span><span>3 × 12–15</span></div>
-      <div class="ex"><span>EZ-bar curl + rope pushdown (superset)</span><span>3 × 10–12</span></div>
-    </div>
-    <div class="wk" onclick="tog(1)"><div><div class="wn">Lower A — Tuesday</div><div class="wd">Squat focus · ~50 min</div></div><span>▾</span></div>
-    <div class="exwrap" id="w1">
-      <div class="ex"><span>Back squat</span><span>4 × 6–8</span></div>
-      <div class="ex"><span>Romanian deadlift</span><span>3 × 8–10</span></div>
-      <div class="ex"><span>Leg press</span><span>3 × 10–12</span></div>
-      <div class="ex"><span>Lying leg curl</span><span>3 × 12</span></div>
-      <div class="ex"><span>Standing calf raise</span><span>4 × 12–15</span></div>
-      <div class="ex"><span>Plank</span><span>3 × 45–60s</span></div>
-    </div>
-    <div class="wk" onclick="tog(2)"><div><div class="wn">Upper B — Thursday</div><div class="wd">Vertical push/pull focus · ~55 min</div></div><span>▾</span></div>
-    <div class="exwrap" id="w2">
-      <div class="ex"><span>Overhead press</span><span>4 × 6–8</span></div>
-      <div class="ex"><span>Pull-ups (assisted or weighted as needed)</span><span>4 × 6–10</span></div>
-      <div class="ex"><span>Incline dumbbell press</span><span>3 × 8–10</span></div>
-      <div class="ex"><span>Seated cable row</span><span>3 × 10–12</span></div>
-      <div class="ex"><span>Rear delt fly</span><span>3 × 12–15</span></div>
-      <div class="ex"><span>Hammer curl + overhead extension (superset)</span><span>3 × 10–12</span></div>
-    </div>
-    <div class="wk" onclick="tog(3)"><div><div class="wn">Lower B — Friday</div><div class="wd">Hinge focus · ~50 min</div></div><span>▾</span></div>
-    <div class="exwrap" id="w3">
-      <div class="ex"><span>Deadlift (conventional or trap bar)</span><span>3 × 5</span></div>
-      <div class="ex"><span>Bulgarian split squat</span><span>3 × 8–10 / leg</span></div>
-      <div class="ex"><span>Leg extension</span><span>3 × 12</span></div>
-      <div class="ex"><span>Seated calf raise</span><span>4 × 12–15</span></div>
-      <div class="ex"><span>Hanging leg raise</span><span>3 × 8–12</span></div>
-    </div>
-    <div class="note">Cardio: 10,000 steps every day — outside when you can, treadmill when you can't. On Wed/Sat/Sun an incline treadmill walk (10–12% · 5km/h · 25–30 min) covers a big chunk of the steps and keeps the deficit moving without eating into recovery. Bulgarian split squats on Friday double up with the split squats already in your mobility routine.</div>
+    <div class="sub" style="margin-bottom:6px">Mon · Tue lift, Wed off, Thu · Fri lift, weekend off. Two hard sets per exercise, each taken to failure (0–1 reps left). Tap a session to expand and log your weights — the app remembers them and tells you last time's number so you can beat it.</div>
+    <div class="synced"><span class="dot" id="syncdot"></span><span id="syncmsg">Weights save on this device.</span><button class="exportbtn" onclick="exportLog()">Export data</button></div>
+    <div id="trainwrap"></div>
+    <div class="note">Two sets to failure is a real but low-volume stimulus — the research shows it grows muscle just as well as higher sets <em>when the sets are genuinely hard and you keep adding load</em>. That's the whole job of the tracker: if the numbers aren't creeping up over the weeks, the volume's too low and you add a third set. Cardio: 10,000 steps every day — outside when you can, treadmill when you can't. Wed/Sat/Sun an incline treadmill walk (10–12% · 5km/h · 25–30 min) covers a chunk of steps without eating into recovery. Friday's Bulgarian split squats double up with the split squats in your mobility routine.</div>
   </div>
 </div>
 
@@ -166,6 +152,8 @@
 const M = {
   bowlB:  {slot:"Breakfast", nm:"Greek yoghurt bowl", ds:"300g fat free Greek yoghurt, banana, honey", k:330, p:32},
   lunchFR:{slot:"Lunch", nm:"Smoky chicken fried rice", ds:"90g jasmine rice (dry), 2 eggs, 100g chicken mince, 80g peas — paprika + cumin", k:700, p:44, tip:"Batch-cooked. Season half the week's boxes soy-garlic instead so it's two meals, not one."},
+  dateLunch:{slot:"Lunch", nm:"Date lunch with Holly", ds:"Out with Holly — not in the plan, no prep needed", k:0, p:0, date:true, tip:"Enjoy it. The day's targets below exclude this meal — eat to appetite and don't stress the macros."},
+  dateDinner:{slot:"Dinner", nm:"Dinner date with Holly", ds:"Out with Holly — not in the plan, no prep needed", k:0, p:0, date:true, tip:"Enjoy it. The day's targets below exclude this meal — eat to appetite and don't stress the macros."},
   liftD:  {slot:"Dinner", nm:"Chicken + sweet potato", ds:"200g breast, 350g sweet potato, tenderstem — air fryer", k:630, p:56, tip:"Foil liner in the basket = nothing to wash."},
   stepD:  {slot:"Dinner", nm:"Chicken + air-fryer wedges", ds:"200g breast, 350g white potato wedges, tenderstem", k:600, p:58},
   s1Lift: {slot:"Snack 1 · pre-gym", nm:"Yoghurt, honey + banana", ds:"200g Greek yoghurt — 45 min before training", k:240, p:22},
@@ -173,11 +161,11 @@ const M = {
   creami: {slot:"Snack 2", nm:"Creami protein ice cream", ds:"250g Greek yoghurt, banana, honey — frozen + spun", k:300, p:27}
 };
 const DAYS = [
-  {d:"Mon", full:"Monday — Upper A", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
+  {d:"Mon", full:"Monday — Upper A", type:"lift", tk:1550, meals:[M.bowlB,M.dateLunch,M.s1Lift,M.liftD,M.creami]},
   {d:"Tue", full:"Tuesday — Lower A", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
   {d:"Wed", full:"Wednesday — Steps", type:"steps", tk:2050, meals:[M.bowlB,M.lunchFR,M.s1,M.stepD,M.creami]},
   {d:"Thu", full:"Thursday — Upper B", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
-  {d:"Fri", full:"Friday — Lower B", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
+  {d:"Fri", full:"Friday — Lower B", type:"lift", tk:1620, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.dateDinner,M.creami]},
   {d:"Sat", full:"Saturday — Steps", type:"steps", tk:2050, meals:[M.bowlB,M.lunchFR,M.s1,M.stepD,M.creami]},
   {d:"Sun", full:"Sunday — Steps + prep", type:"steps", tk:2050, meals:[M.bowlB,M.lunchFR,M.s1,M.stepD,M.creami]}
 ];
@@ -199,6 +187,7 @@ function renderDay(){
   const pk = Math.min(100, Math.round(tk/d.tk*100));
   const pp = Math.min(100, Math.round(tp/TP*100));
   const hitP = tp >= TP-4;
+  const hasDate = d.meals.some(m=>m.date);
   const meals = d.meals.map(m=>`
     <div class="meal">
       <div>
@@ -207,8 +196,13 @@ function renderDay(){
         <div class="ds">${m.ds}</div>
         ${m.tip?`<div class="tip">${m.tip}</div>`:""}
       </div>
-      <div class="macros"><div class="k">${m.k} kcal</div><div class="p">${m.p}g P</div></div>
+      ${m.date
+        ? `<div class="macros"><div class="p" style="color:var(--bronze)">♥ Date</div></div>`
+        : `<div class="macros"><div class="k">${m.k} kcal</div><div class="p">${m.p}g P</div></div>`}
     </div>`).join("");
+  const dayNote = hasDate
+    ? `Date with Holly today — that meal is left out of the plan and the targets below cover only your other meals. Eat to appetite when you're out and pick the plan straight back up the next day.`
+    : `Rice: Mai Thai AAA Jasmine, 377 kcal/100g dry — your own stock. Chicken and yoghurt figures based on Waitrose products; peas, potato and banana from standard UK values. 10g olive oil per cooked dinner is included.`;
   document.getElementById("daycard").innerHTML = `
     <div class="dayhead">
       <span class="name">${d.full}</span>
@@ -225,10 +219,147 @@ function renderDay(){
       </div>
     </div>
     ${meals}
-    <div class="note">Rice: Mai Thai AAA Jasmine, 377 kcal/100g dry — your own stock. Chicken and yoghurt figures based on Waitrose products; peas, potato and banana from standard UK values. 10g olive oil per cooked dinner is included.</div>`;
+    <div class="note">${dayNote}</div>`;
 }
 function sel(i){ active=i; renderRail(); renderDay(); }
-function tog(i){ document.getElementById("w"+i).classList.toggle("open"); }
+function tog(i){
+  const el = document.getElementById("w"+i);
+  if(el) el.classList.toggle("open");
+}
+
+/* ---------- Training data: 2 hard sets to failure per exercise ---------- */
+const WORKOUTS = [
+  {id:"upperA", title:"Upper A — Monday", sub:"Horizontal push/pull focus · ~45 min", ex:[
+    {k:"ua_bench", n:"Barbell bench press", s:"2 × 6–8"},
+    {k:"ua_row", n:"Chest-supported or barbell row", s:"2 × 8–10"},
+    {k:"ua_ohp", n:"Seated dumbbell shoulder press", s:"2 × 8–10"},
+    {k:"ua_pull", n:"Lat pulldown", s:"2 × 10–12"},
+    {k:"ua_lat", n:"Cable lateral raise", s:"2 × 12–15"},
+    {k:"ua_arms", n:"EZ-bar curl + rope pushdown (superset)", s:"2 × 10–12"}
+  ]},
+  {id:"lowerA", title:"Lower A — Tuesday", sub:"Squat focus · ~40 min", ex:[
+    {k:"la_hack", n:"Hack squat", s:"2 × 6–8"},
+    {k:"la_press", n:"Leg press", s:"2 × 10–12"},
+    {k:"la_curl", n:"Lying leg curl", s:"2 × 10–12"},
+    {k:"la_calf", n:"Standing calf raise", s:"2 × 12–15"},
+    {k:"la_plank", n:"Plank", s:"2 × 45–60s"}
+  ]},
+  {id:"upperB", title:"Upper B — Thursday", sub:"Vertical push/pull focus · ~45 min", ex:[
+    {k:"ub_ohp", n:"Overhead press", s:"2 × 6–8"},
+    {k:"ub_pull", n:"Pull-ups (assisted or weighted)", s:"2 × 6–10"},
+    {k:"ub_inc", n:"Incline dumbbell press", s:"2 × 8–10"},
+    {k:"ub_row", n:"Seated cable row", s:"2 × 10–12"},
+    {k:"ub_rear", n:"Rear delt fly", s:"2 × 12–15"},
+    {k:"ub_arms", n:"Hammer curl + overhead extension (superset)", s:"2 × 10–12"}
+  ]},
+  {id:"lowerB", title:"Lower B — Friday", sub:"Quad + glute/ham, hinge-free · ~40 min", ex:[
+    {k:"lb_hack", n:"Hack squat", s:"2 × 8–10"},
+    {k:"lb_bss", n:"Bulgarian split squat", s:"2 × 8–10 / leg"},
+    {k:"lb_ext", n:"Leg extension", s:"2 × 12"},
+    {k:"lb_thrust", n:"Hip thrust (machine or barbell)", s:"2 × 8–12"},
+    {k:"lb_curl", n:"Seated leg curl", s:"2 × 10–12"},
+    {k:"lb_calf", n:"Seated calf raise", s:"2 × 12–15"}
+  ]}
+];
+
+const LS_KEY = "troyPlanLog";
+function loadLog(){
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }
+  catch { return {}; }
+}
+function saveLog(log){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(log)); return true; }
+  catch { return false; }
+}
+
+function renderTraining(){
+  const log = loadLog();
+  const dot = document.getElementById("syncdot");
+  const msg = document.getElementById("syncmsg");
+  const has = Object.keys(log).length > 0;
+  if(dot) dot.classList.toggle("on", has);
+  if(msg) msg.textContent = has
+    ? "Weights saved on this device — last entries shown under each lift."
+    : "Weights save on this device. Log your first session to start tracking.";
+
+  document.getElementById("trainwrap").innerHTML = WORKOUTS.map((w,i)=>`
+    <div class="wk" onclick="tog(${i})">
+      <div><div class="wn">${w.title}</div><div class="wd">${w.sub}</div></div><span>▾</span>
+    </div>
+    <div class="exwrap" id="w${i}">
+      ${w.ex.map(e=>exRow(e, log)).join("")}
+    </div>`).join("");
+}
+
+function exRow(e, log){
+  const prev = log[e.k];
+  let lastHtml = "&nbsp;";
+  if(prev){
+    lastHtml = `Last: <b>${prev.w}kg × ${prev.r}</b> &middot; ${prev.date}`;
+  }
+  return `
+    <div class="exrow">
+      <div class="extop">
+        <span class="exname">${e.n}</span>
+        <span class="exscheme">${e.s}</span>
+      </div>
+      <div class="log">
+        <label>kg</label>
+        <input type="number" inputmode="decimal" step="0.5" id="${e.k}_w" placeholder="${prev?prev.w:'—'}">
+        <label>reps</label>
+        <input type="number" inputmode="numeric" id="${e.k}_r" placeholder="${prev?prev.r:'—'}">
+        <button class="save" onclick="logSet('${e.k}')">Save</button>
+      </div>
+      <div class="last" id="${e.k}_last">${lastHtml}</div>
+    </div>`;
+}
+
+function logSet(key){
+  const wEl = document.getElementById(key+"_w");
+  const rEl = document.getElementById(key+"_r");
+  const w = parseFloat(wEl.value);
+  const r = parseInt(rEl.value, 10);
+  if(isNaN(w) || isNaN(r)){
+    document.getElementById(key+"_last").innerHTML =
+      `<span class="down">Enter both a weight and reps.</span>`;
+    return;
+  }
+  const log = loadLog();
+  const prev = log[key];
+  const date = new Date().toLocaleDateString("en-GB", {day:"numeric", month:"short"});
+  log[key] = {w, r, date};
+  const ok = saveLog(log);
+  let trend = "";
+  if(prev){
+    const prevVol = prev.w * prev.r, nowVol = w * r;
+    if(nowVol > prevVol) trend = ` <span class="up">▲ up on last (${prev.w}kg × ${prev.r})</span>`;
+    else if(nowVol < prevVol) trend = ` <span class="down">▼ down on last (${prev.w}kg × ${prev.r})</span>`;
+    else trend = ` &middot; matched last time`;
+  }
+  document.getElementById(key+"_last").innerHTML = ok
+    ? `Saved: <b>${w}kg × ${r}</b> &middot; ${date}${trend}`
+    : `<span class="down">Couldn't save — storage blocked in this view. Open the GitHub Pages link instead.</span>`;
+  wEl.value = ""; rEl.value = "";
+  const dot = document.getElementById("syncdot");
+  if(dot) dot.classList.add("on");
+}
+
+function exportLog(){
+  const log = loadLog();
+  if(!Object.keys(log).length){ alert("No data logged yet."); return; }
+  const lookup = {};
+  WORKOUTS.forEach(w=>w.ex.forEach(e=>lookup[e.k]=e.n));
+  let csv = "Exercise,Weight (kg),Reps,Date\n";
+  Object.entries(log).forEach(([k,v])=>{
+    csv += `"${lookup[k]||k}",${v.w},${v.r},${v.date}\n`;
+  });
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "troy-plan-weights.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 document.querySelectorAll(".tab").forEach(t=>{
   t.onclick = ()=>{
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
@@ -237,7 +368,7 @@ document.querySelectorAll(".tab").forEach(t=>{
       document.getElementById("view-"+(v==="plan"?"plan":v)).classList.toggle("hide", v!==t.dataset.v));
   };
 });
-renderRail(); renderDay();
+renderRail(); renderDay(); renderTraining();
 </script>
 </body>
 </html>

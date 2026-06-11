@@ -83,10 +83,25 @@
   .last{font-size:11.5px;color:var(--muted);margin-top:5px;min-height:14px}
   .last b{color:var(--good);font-weight:600}
   .last .up{color:var(--good)} .last .down{color:var(--warn)}
-  .synced{font-size:11px;color:var(--muted);margin:4px 0 10px;display:flex;align-items:center;gap:8px}
-  .synced .dot{width:7px;height:7px;border-radius:99px;background:var(--muted)}
+  .synced{font-size:11px;color:var(--muted);margin:4px 0 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .synced .dot{width:7px;height:7px;border-radius:99px;background:var(--muted);flex-shrink:0}
   .synced .dot.on{background:var(--good)}
+  .synced .dot.err{background:var(--warn)}
   .exportbtn{font-size:11px;padding:4px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);cursor:pointer}
+  /* sync panel */
+  .syncpanel{border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:14px;background:var(--bg)}
+  .syncpanel h4{font-size:13px;margin:0 0 6px}
+  .syncpanel p{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:9px}
+  .syncpanel p a{color:var(--aegean)}
+  .syncrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .syncrow input{flex:1;min-width:160px;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font-family:inherit}
+  .syncrow input:focus{outline:none;border-color:var(--bronze)}
+  .syncrow button{font-size:12.5px;font-weight:600;padding:7px 14px;border:none;border-radius:7px;background:var(--ink);color:#FBF9F4;cursor:pointer;white-space:nowrap}
+  .syncrow button.ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line);font-weight:500}
+  .syncstate{font-size:12px;margin-top:8px;min-height:15px}
+  .syncstate .ok{color:var(--good);font-weight:600}
+  .syncstate .er{color:var(--warn);font-weight:600}
+  .toggle{font-size:11.5px;color:var(--aegean);cursor:pointer;user-select:none;text-decoration:underline}
 </style>
 </head>
 <body>
@@ -110,7 +125,17 @@
   <div class="card">
     <h3>Upper / Lower / Upper / Lower</h3>
     <div class="sub" style="margin-bottom:6px">Mon · Tue lift, Wed off, Thu · Fri lift, weekend off. Two hard sets per exercise, each taken to failure (0–1 reps left). Tap a session to expand and log your weights — the app remembers them and tells you last time's number so you can beat it.</div>
-    <div class="synced"><span class="dot" id="syncdot"></span><span id="syncmsg">Weights save on this device.</span><button class="exportbtn" onclick="exportLog()">Export data</button></div>
+    <div class="synced"><span class="dot" id="syncdot"></span><span id="syncmsg">Weights save on this device.</span><span class="toggle" onclick="toggleSyncPanel()">Sync across devices</span><button class="exportbtn" onclick="exportLog()">Export CSV</button></div>
+    <div class="syncpanel hide" id="syncpanel">
+      <h4>Sync your weights across phone &amp; laptop</h4>
+      <p>This stores your log in a <b>private GitHub gist</b> so it follows you between devices. Paste a GitHub token with <b>gist</b> access once per device — it's saved only in this browser, never uploaded to the site, and only ever talks to GitHub. Create one at <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Troy%20Plan%20sync" target="_blank" rel="noopener">github.com → tokens</a> (tick <b>gist</b>, nothing else).</p>
+      <div class="syncrow">
+        <input type="password" id="ghtoken" placeholder="Paste GitHub token (gist scope)" autocomplete="off">
+        <button onclick="connectSync()">Connect</button>
+        <button class="ghost" onclick="disconnectSync()">Disconnect</button>
+      </div>
+      <div class="syncstate" id="syncstate"></div>
+    </div>
     <div id="trainwrap"></div>
     <div class="note">Two sets to failure is a real but low-volume stimulus — the research shows it grows muscle just as well as higher sets <em>when the sets are genuinely hard and you keep adding load</em>. That's the whole job of the tracker: if the numbers aren't creeping up over the weeks, the volume's too low and you add a third set. Cardio: 10,000 steps every day — outside when you can, treadmill when you can't. Wed/Sat/Sun an incline treadmill walk (10–12% · 5km/h · 25–30 min) covers a chunk of steps without eating into recovery. Friday's Bulgarian split squats double up with the split squats in your mobility routine.</div>
   </div>
@@ -263,6 +288,10 @@ const WORKOUTS = [
 ];
 
 const LS_KEY = "troyPlanLog";
+const TOK_KEY = "troyPlanToken";
+const GIST_KEY = "troyPlanGistId";
+const GIST_FILE = "troy-plan-weights.json";
+
 function loadLog(){
   try { return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }
   catch { return {}; }
@@ -272,15 +301,159 @@ function saveLog(log){
   catch { return false; }
 }
 
+/* merge two logs keeping the most recent entry per exercise (by timestamp) */
+function mergeLogs(a, b){
+  const out = {};
+  const keys = new Set([...Object.keys(a||{}), ...Object.keys(b||{})]);
+  keys.forEach(k=>{
+    const ea = a[k], eb = b[k];
+    if(!ea){ out[k]=eb; return; }
+    if(!eb){ out[k]=ea; return; }
+    out[k] = (eb.ts||0) > (ea.ts||0) ? eb : ea;
+  });
+  return out;
+}
+
+/* ---------- GitHub gist sync (token entered by user, stored only locally) ---------- */
+const gh = {
+  token: () => localStorage.getItem(TOK_KEY) || "",
+  gistId: () => localStorage.getItem(GIST_KEY) || "",
+  on: () => !!localStorage.getItem(TOK_KEY)
+};
+
+async function ghFetch(url, opts={}){
+  const r = await fetch(url, {
+    ...opts,
+    headers: {
+      "Authorization": "Bearer " + gh.token(),
+      "Accept": "application/vnd.github+json",
+      ...(opts.headers||{})
+    }
+  });
+  if(!r.ok) throw new Error("GitHub " + r.status);
+  return r.json();
+}
+
+/* find an existing sync gist by filename, or create one */
+async function findOrCreateGist(){
+  let id = gh.gistId();
+  if(id) return id;
+  const list = await ghFetch("https://api.github.com/gists?per_page=100");
+  const found = list.find(g => g.files && g.files[GIST_FILE]);
+  if(found){ localStorage.setItem(GIST_KEY, found.id); return found.id; }
+  const created = await ghFetch("https://api.github.com/gists", {
+    method: "POST",
+    body: JSON.stringify({
+      description: "Troy Plan — workout weight log",
+      public: false,
+      files: { [GIST_FILE]: { content: JSON.stringify(loadLog()) } }
+    })
+  });
+  localStorage.setItem(GIST_KEY, created.id);
+  return created.id;
+}
+
+async function pullGist(){
+  const id = await findOrCreateGist();
+  const g = await ghFetch("https://api.github.com/gists/" + id);
+  const file = g.files && g.files[GIST_FILE];
+  if(!file) return {};
+  try { return JSON.parse(file.content || "{}"); }
+  catch { return {}; }
+}
+
+async function pushGist(log){
+  const id = await findOrCreateGist();
+  await ghFetch("https://api.github.com/gists/" + id, {
+    method: "PATCH",
+    body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(log) } } })
+  });
+}
+
+/* pull remote, merge with local, save merged locally, push back if changed */
+async function syncNow(){
+  if(!gh.on()) return;
+  setSyncStatus("Syncing…");
+  try {
+    const remote = await pullGist();
+    const local = loadLog();
+    const merged = mergeLogs(remote, local);
+    saveLog(merged);
+    if(JSON.stringify(merged) !== JSON.stringify(remote)) await pushGist(merged);
+    renderTraining();
+    setSyncDot("on");
+    setSyncStatus(`<span class="ok">Synced</span> &middot; ${new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}`);
+  } catch(e){
+    setSyncDot("err");
+    setSyncStatus(`<span class="er">Sync failed</span> — ${e.message}. Check the token has gist scope.`);
+  }
+}
+
+let pushTimer = null;
+function queuePush(){
+  if(!gh.on()) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(async ()=>{
+    try { await pushGist(loadLog()); setSyncDot("on"); }
+    catch(e){ setSyncDot("err"); setSyncStatus(`<span class="er">Couldn't save to gist</span> — ${e.message}`); }
+  }, 1200);
+}
+
+function setSyncDot(state){
+  const dot = document.getElementById("syncdot");
+  if(!dot) return;
+  dot.classList.remove("on","err");
+  if(state) dot.classList.add(state);
+}
+function setSyncStatus(html){
+  const el = document.getElementById("syncstate");
+  if(el) el.innerHTML = html;
+}
+
+function toggleSyncPanel(){
+  document.getElementById("syncpanel").classList.toggle("hide");
+}
+
+async function connectSync(){
+  const input = document.getElementById("ghtoken");
+  const tok = input.value.trim();
+  if(!tok){ setSyncStatus(`<span class="er">Paste a token first.</span>`); return; }
+  localStorage.setItem(TOK_KEY, tok);
+  input.value = "";
+  setSyncStatus("Connecting…");
+  try {
+    await ghFetch("https://api.github.com/gists?per_page=1"); // validate token
+    await syncNow();
+    document.getElementById("syncmsg").textContent = "Synced to a private gist — works across your devices.";
+  } catch(e){
+    localStorage.removeItem(TOK_KEY);
+    setSyncDot("err");
+    setSyncStatus(`<span class="er">Couldn't connect</span> — ${e.message}. The token needs gist scope.`);
+  }
+}
+
+function disconnectSync(){
+  localStorage.removeItem(TOK_KEY);
+  localStorage.removeItem(GIST_KEY);
+  setSyncDot("");
+  setSyncStatus("Disconnected. Weights still save on this device.");
+  document.getElementById("syncmsg").textContent = "Weights save on this device.";
+}
+
 function renderTraining(){
   const log = loadLog();
   const dot = document.getElementById("syncdot");
   const msg = document.getElementById("syncmsg");
   const has = Object.keys(log).length > 0;
-  if(dot) dot.classList.toggle("on", has);
-  if(msg) msg.textContent = has
-    ? "Weights saved on this device — last entries shown under each lift."
-    : "Weights save on this device. Log your first session to start tracking.";
+  if(!gh.on()){
+    if(dot){ dot.classList.remove("err"); dot.classList.toggle("on", has); }
+    if(msg) msg.textContent = has
+      ? "Weights saved on this device — last entries shown under each lift."
+      : "Weights save on this device. Log your first session to start tracking.";
+  } else {
+    if(dot){ dot.classList.remove("err"); dot.classList.add("on"); }
+    if(msg) msg.textContent = "Synced to a private gist — works across your devices.";
+  }
 
   document.getElementById("trainwrap").innerHTML = WORKOUTS.map((w,i)=>`
     <div class="wk" onclick="tog(${i})">
@@ -327,7 +500,7 @@ function logSet(key){
   const log = loadLog();
   const prev = log[key];
   const date = new Date().toLocaleDateString("en-GB", {day:"numeric", month:"short"});
-  log[key] = {w, r, date};
+  log[key] = {w, r, date, ts: Date.now()};
   const ok = saveLog(log);
   let trend = "";
   if(prev){
@@ -341,7 +514,8 @@ function logSet(key){
     : `<span class="down">Couldn't save — storage blocked in this view. Open the GitHub Pages link instead.</span>`;
   wEl.value = ""; rEl.value = "";
   const dot = document.getElementById("syncdot");
-  if(dot) dot.classList.add("on");
+  if(dot && !gh.on()) dot.classList.add("on");
+  queuePush();
 }
 
 function exportLog(){
@@ -369,6 +543,7 @@ document.querySelectorAll(".tab").forEach(t=>{
   };
 });
 renderRail(); renderDay(); renderTraining();
+if(gh.on()) syncNow();
 </script>
 </body>
 </html>

@@ -6,11 +6,12 @@
 <title>Troy Plan — Dashboard</title>
 <style>
   :root{
-    --bg:#EDEAE3; --panel:#FFFFFF; --ink:#23211C; --muted:#6F6A60;
-    --line:#DDD8CD; --bronze:#A86B2D; --bronze-soft:#F3E7D8;
-    --aegean:#2E6475; --aegean-soft:#E2EEF1;
-    --good:#2F7D4F; --good-soft:#E3EFE7; --warn:#B3551F;
-    --violet:#5B4B8A; --violet-soft:#EAE6F4;
+    color-scheme:dark;
+    --bg:#181613; --panel:#23211C; --ink:#EDE8DE; --muted:#9B9486;
+    --line:#3A362E; --bronze:#D08A45; --bronze-soft:#3A2C1C;
+    --aegean:#72ACBD; --aegean-soft:#1E3138;
+    --good:#5FB283; --good-soft:#1F3328; --warn:#E08A4E;
+    --violet:#A795DC; --violet-soft:#2C2741;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -20,7 +21,7 @@
   /* sticky section nav */
   .nav{position:sticky;top:0;z-index:50;display:flex;gap:6px;margin:14px -14px 14px;padding:10px 14px;background:var(--bg);overflow-x:auto;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--line)}
   .nav a{flex-shrink:0;text-decoration:none;padding:7px 13px;border:1px solid var(--line);border-radius:99px;background:var(--panel);font-size:12.5px;color:var(--muted);white-space:nowrap}
-  .nav a.hot{background:var(--ink);color:#FBF9F4;border-color:var(--ink)}
+  .nav a.hot{background:var(--ink);color:var(--bg);border-color:var(--ink)}
   section{scroll-margin-top:62px}
   .sechead{font-family:Georgia,serif;font-size:19px;font-weight:600;margin:22px 0 10px;display:flex;align-items:baseline;gap:10px}
   .sechead small{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:12px;font-weight:400;color:var(--muted)}
@@ -116,7 +117,7 @@
   .log label{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
   .log input{width:58px;font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font-family:inherit}
   .log input:focus{outline:none;border-color:var(--bronze)}
-  .log .save{font-size:12px;font-weight:600;padding:5px 12px;border:none;border-radius:7px;background:var(--ink);color:#FBF9F4;cursor:pointer}
+  .log .save{font-size:12px;font-weight:600;padding:5px 12px;border:none;border-radius:7px;background:var(--ink);color:var(--bg);cursor:pointer}
   .log .save:active{transform:translateY(1px)}
   .last{font-size:11.5px;color:var(--muted);margin-top:5px;min-height:14px}
   .last b{color:var(--good);font-weight:600}
@@ -134,7 +135,7 @@
   .syncrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .syncrow input{flex:1;min-width:160px;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font-family:inherit}
   .syncrow input:focus{outline:none;border-color:var(--bronze)}
-  .syncrow button{font-size:12.5px;font-weight:600;padding:7px 14px;border:none;border-radius:7px;background:var(--ink);color:#FBF9F4;cursor:pointer;white-space:nowrap}
+  .syncrow button{font-size:12.5px;font-weight:600;padding:7px 14px;border:none;border-radius:7px;background:var(--ink);color:var(--bg);cursor:pointer;white-space:nowrap}
   .syncrow button.ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line);font-weight:500}
   .syncstate{font-size:12px;margin-top:8px;min-height:15px}
   .syncstate .ok{color:var(--good);font-weight:600}

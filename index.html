@@ -3,21 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Troy Plan v3</title>
+<title>Troy Plan — Dashboard</title>
 <style>
   :root{
     --bg:#EDEAE3; --panel:#FFFFFF; --ink:#23211C; --muted:#6F6A60;
     --line:#DDD8CD; --bronze:#A86B2D; --bronze-soft:#F3E7D8;
     --aegean:#2E6475; --aegean-soft:#E2EEF1;
-    --good:#2F7D4F; --warn:#B3551F;
+    --good:#2F7D4F; --good-soft:#E3EFE7; --warn:#B3551F;
+    --violet:#5B4B8A; --violet-soft:#EAE6F4;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:18px 14px 40px;max-width:760px;margin:0 auto}
   h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:26px;letter-spacing:.2px}
   .sub{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.5}
-  .tabs{display:flex;gap:6px;margin:18px 0 14px}
-  .tab{flex:1;text-align:center;padding:9px 2px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none}
-  .tab.on{background:var(--ink);color:#FBF9F4;border-color:var(--ink)}
+  /* sticky section nav */
+  .nav{position:sticky;top:0;z-index:50;display:flex;gap:6px;margin:14px -14px 14px;padding:10px 14px;background:var(--bg);overflow-x:auto;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--line)}
+  .nav a{flex-shrink:0;text-decoration:none;padding:7px 13px;border:1px solid var(--line);border-radius:99px;background:var(--panel);font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .nav a.hot{background:var(--ink);color:#FBF9F4;border-color:var(--ink)}
+  section{scroll-margin-top:62px}
+  .sechead{font-family:Georgia,serif;font-size:19px;font-weight:600;margin:22px 0 10px;display:flex;align-items:baseline;gap:10px}
+  .sechead small{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:12px;font-weight:400;color:var(--muted)}
   .days{display:flex;gap:5px;margin-bottom:14px}
   .day{flex:1;text-align:center;padding:8px 0 7px;border-radius:9px;border:1px solid var(--line);background:var(--panel);cursor:pointer;user-select:none}
   .day .d{font-size:12.5px;font-weight:600}
@@ -32,6 +38,8 @@
   .badge{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:3px 9px;border-radius:99px}
   .badge.lift{background:var(--bronze-soft);color:var(--bronze)}
   .badge.steps{background:var(--aegean-soft);color:var(--aegean)}
+  .badge.app{background:var(--violet-soft);color:var(--violet)}
+  .badge.done{background:var(--good-soft);color:var(--good)}
   .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
   .stat .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px}
   .stat .val{font-size:20px;font-weight:600}
@@ -68,6 +76,36 @@
   .item{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line)}
   .item span:last-child{color:var(--muted);font-size:12.5px;text-align:right;padding-left:12px}
   .hide{display:none}
+  /* today card */
+  .todaygrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+  @media(max-width:480px){.todaygrid{grid-template-columns:1fr}}
+  .tile{border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:var(--bg)}
+  .tile .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px}
+  .tile .big{font-size:14.5px;font-weight:600;line-height:1.35}
+  .tile .sm{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45}
+  .tile a{color:var(--violet);text-decoration:none;font-weight:600}
+  /* apprenticeship */
+  .links{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .links a{text-decoration:none;font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .links a.primary{background:var(--violet);border-color:var(--violet);color:#FBF9F4}
+  .ev{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);align-items:baseline}
+  .ev:first-of-type{border-top:none}
+  .ev .en{font-size:13.5px;font-weight:600;line-height:1.4}
+  .ev .en a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--muted)}
+  .ev .ed{font-size:12px;color:var(--muted);margin-top:2px}
+  .ev .rel{font-size:11.5px;font-weight:600;color:var(--violet);white-space:nowrap;text-align:right}
+  .ev .rel small{display:block;font-weight:400;color:var(--muted)}
+  .mod{padding:10px 0;border-top:1px solid var(--line)}
+  .mod:first-of-type{border-top:none}
+  .modtop{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .mod .mn{font-size:13.5px;font-weight:600}
+  .mod .mn a{color:var(--ink);text-decoration:none}
+  .mod .md{font-size:11.5px;color:var(--muted);white-space:nowrap;padding-left:10px}
+  .mod .bar{margin-top:7px}
+  .mod .mstate{font-size:11.5px;margin-top:5px;color:var(--muted)}
+  .mod .mstate .on{color:var(--bronze);font-weight:600}
+  .mod .mstate .ok{color:var(--good);font-weight:600}
+  .showmore{font-size:12px;color:var(--aegean);cursor:pointer;user-select:none;text-decoration:underline;margin-top:8px;display:inline-block}
   /* progressive overload tracker */
   .exrow{padding:10px 0;border-bottom:1px solid var(--line)}
   .exrow:last-child{border-bottom:none}
@@ -106,22 +144,62 @@
 </head>
 <body>
 
-<h1>Troy Plan v3</h1>
-<div class="sub">All-chicken budget edition. ULUL lifting Mon · Tue · Thu · Fri, 10k steps every day, no running. Two hard sets to failure per exercise, weights tracked for progressive overload. Two prep sessions a week, almost no washing up.</div>
+<h1>Troy Plan</h1>
+<div class="sub">One-page dashboard — training, meals, prep, shopping and the AI Engineer apprenticeship. ULUL lifting Mon · Tue · Thu · Fri, 10k steps every day, two prep sessions a week.</div>
 
-<div class="tabs">
-  <div class="tab on" data-v="plan">Meals</div>
-  <div class="tab" data-v="train">Training</div>
-  <div class="tab" data-v="prep">Prep</div>
-  <div class="tab" data-v="basket">Basket</div>
-</div>
+<nav class="nav" id="nav">
+  <a href="#today">Today</a>
+  <a href="#apprenticeship">Apprenticeship</a>
+  <a href="#meals">Meals</a>
+  <a href="#training">Training</a>
+  <a href="#prep">Prep</a>
+  <a href="#basket">Basket</a>
+</nav>
 
-<div id="view-plan">
+<!-- ===================== TODAY ===================== -->
+<section id="today">
+  <div class="card" id="todaycard"></div>
+</section>
+
+<!-- ================= APPRENTICESHIP ================ -->
+<section id="apprenticeship">
+  <div class="sechead">Apprenticeship <small>AI Engineer · Jun 2026 – Aug 2027</small></div>
+  <div class="card">
+    <div class="links">
+      <a class="primary" href="https://app.edukate.ai" target="_blank" rel="noopener">Open EDUKATE</a>
+      <a href="obsidian://open?vault=AI-Apprenticeship">Obsidian vault</a>
+      <a href="https://app.edukate.ai/modules/14528" target="_blank" rel="noopener">Office Hours</a>
+    </div>
+    <div class="stats" style="grid-template-columns:1fr">
+      <div class="stat"><div class="lbl">Programme progress</div>
+        <div class="val" id="progval">—</div>
+        <div class="bar"><i id="progbar" style="width:0;background:var(--violet)"></i></div>
+      </div>
+    </div>
+    <h4 style="margin-top:16px">Next up</h4>
+    <div id="evwrap"></div>
+    <span class="showmore" id="evmore" onclick="toggleAllEvents()">Show full schedule</span>
+    <div class="note">Office Hours run most Fridays, 2pm UK time — they're in your Apple Calendar along with everything above (EDUKATE.AI feed, refreshes weekly). Tap any event to open it on EDUKATE.</div>
+  </div>
+  <div class="card">
+    <h3>Modules</h3>
+    <div id="modwrap"></div>
+    <h4 style="margin-top:14px">Running all year</h4>
+    <div id="longmodwrap"></div>
+    <div class="note">Progress bars are based on dates — tap a module's tick to mark it done yourself (saved on this device). Module notes live in your Obsidian vault: <b>AI-Apprenticeship</b>.</div>
+  </div>
+</section>
+
+<!-- ===================== MEALS ===================== -->
+<section id="meals">
+  <div class="sechead">Meals <small>all-chicken budget edition · 170g protein target</small></div>
   <div class="days" id="dayrail"></div>
   <div class="card" id="daycard"></div>
-</div>
+</section>
 
-<div id="view-train" class="hide">
+<!-- ==================== TRAINING =================== -->
+<section id="training">
+  <div class="sechead">Training <small>2 hard sets to failure · log to beat last time</small></div>
   <div class="card">
     <h3>Upper / Lower / Upper / Lower</h3>
     <div class="sub" style="margin-bottom:6px">Mon · Tue lift, Wed off, Thu · Fri lift, weekend off. Two hard sets per exercise, each taken to failure (0–1 reps left). Tap a session to expand and log your weights — the app remembers them and tells you last time's number so you can beat it.</div>
@@ -139,21 +217,23 @@
     <div id="trainwrap"></div>
     <div class="note">Two sets to failure is a real but low-volume stimulus — the research shows it grows muscle just as well as higher sets <em>when the sets are genuinely hard and you keep adding load</em>. That's the whole job of the tracker: if the numbers aren't creeping up over the weeks, the volume's too low and you add a third set. Cardio: 10,000 steps every day — outside when you can, treadmill when you can't. Wed/Sat/Sun an incline treadmill walk (10–12% · 5km/h · 25–30 min) covers a chunk of steps without eating into recovery. Friday's Bulgarian split squats double up with the split squats in your mobility routine.</div>
   </div>
-</div>
+</section>
 
-<div id="view-prep" class="hide">
+<!-- ====================== PREP ===================== -->
+<section id="prep">
+  <div class="sechead">Prep <small>two sessions, three things to wash</small></div>
   <div class="card">
-    <h3>Two prep sessions, three things to wash</h3>
     <div class="step"><div class="n">1</div><div class="b"><b>Sunday — ~50 minutes</b>Rice cooker: full week's rice (630g dry = 7 × 90g portions). Spread to cool within the hour, box up, freeze all 7. While it cooks: brown 300g mince with paprika + cumin in the wok, scramble in 6 eggs, toss through 3 thawed rice portions + peas — that's Mon–Wed lunches boxed. Air-fry 3 breasts + sweet potato/wedges for Mon–Wed dinners if you want dinners boxed too, or leave dinners to the air fryer fresh (10 min, foil liner, nothing to wash). Load 3 Creami tubs into the freezer.</div></div>
     <div class="step"><div class="n">2</div><div class="b"><b>Wednesday — ~30 minutes</b>Same again for Thu–Sun: 400g mince, 8 eggs, 4 rice portions, 4 Creami tubs. Cooked food sits in the fridge a maximum of 3 days, which is why the week splits 3 + 4.</div></div>
     <div class="step"><div class="n">3</div><div class="b"><b>Every day — zero pans</b>Breakfast is a bowl and a spoon. Lunch is a microwave box (piping hot, reheat once only). Dinner is the air fryer with a liner. Creami spins in its own tub. The only real washing up all week: the wok twice, the rice cooker pot once, the air fryer basket.</div></div>
     <div class="note">Rice safety: cool it fast (within 1 hour), freeze or fridge straight away, reheat until piping hot, never reheat twice. Frozen portions microwave from frozen in ~3 minutes and are the safest way to batch rice.</div>
   </div>
-</div>
+</section>
 
-<div id="view-basket" class="hide">
+<!-- ===================== BASKET ==================== -->
+<section id="basket">
+  <div class="sechead">Basket <small>Waitrose order — all-chicken week</small></div>
   <div class="card">
-    <h3>Waitrose order — all-chicken week</h3>
     <div class="grp add">In</div>
     <div class="item"><span>Chicken breast fillets 1kg × 2</span><span>1.4kg dinners · freeze the spare 600g</span></div>
     <div class="item"><span>Chicken mince 500g × 2</span><span>700g lunches · freeze the spare</span></div>
@@ -171,9 +251,10 @@
     <div class="item"><span>Jasmine rice (own stock), olive oil, soy, smoked paprika, cumin, honey, garlic, lemons</span><span>no purchase needed</span></div>
     <div class="note">Rough cost vs v2: in the region of £15–20 cheaper — seafood was the most expensive thing in the basket and the yoghurt swap saves a few pounds more. Prices are estimates until the trolley is built. One trade-off worth knowing: the omega-3 from the salmon is gone again; a £1.50 tin of mackerel once or twice a week is the cheapest fix if you ever want it back.</div>
   </div>
-</div>
+</section>
 
 <script>
+/* ===================== MEALS DATA ===================== */
 const M = {
   bowlB:  {slot:"Breakfast", nm:"Greek yoghurt bowl", ds:"300g fat free Greek yoghurt, banana, honey", k:330, p:32},
   lunchFR:{slot:"Lunch", nm:"Smoky chicken fried rice", ds:"90g jasmine rice (dry), 2 eggs, 100g chicken mince, 80g peas — paprika + cumin", k:700, p:44, tip:"Batch-cooked. Season half the week's boxes soy-garlic instead so it's two meals, not one."},
@@ -186,18 +267,18 @@ const M = {
   creami: {slot:"Snack 2", nm:"Creami protein ice cream", ds:"250g Greek yoghurt, banana, honey — frozen + spun", k:300, p:27}
 };
 const DAYS = [
-  {d:"Mon", full:"Monday — Upper A", type:"lift", tk:1550, meals:[M.bowlB,M.dateLunch,M.s1Lift,M.liftD,M.creami]},
-  {d:"Tue", full:"Tuesday — Lower A", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
+  {d:"Mon", full:"Monday — Upper A", type:"lift", tk:1550, w:0, meals:[M.bowlB,M.dateLunch,M.s1Lift,M.liftD,M.creami]},
+  {d:"Tue", full:"Tuesday — Lower A", type:"lift", tk:2250, w:1, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
   {d:"Wed", full:"Wednesday — Steps", type:"steps", tk:2050, meals:[M.bowlB,M.lunchFR,M.s1,M.stepD,M.creami]},
-  {d:"Thu", full:"Thursday — Upper B", type:"lift", tk:2250, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
-  {d:"Fri", full:"Friday — Lower B", type:"lift", tk:1620, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.dateDinner,M.creami]},
+  {d:"Thu", full:"Thursday — Upper B", type:"lift", tk:2250, w:2, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.liftD,M.creami]},
+  {d:"Fri", full:"Friday — Lower B", type:"lift", tk:1620, w:3, meals:[M.bowlB,M.lunchFR,M.s1Lift,M.dateDinner,M.creami]},
   {d:"Sat", full:"Saturday — Steps", type:"steps", tk:2050, meals:[M.bowlB,M.lunchFR,M.s1,M.stepD,M.creami]},
   {d:"Sun", full:"Sunday — Steps + prep", type:"steps", tk:2050, meals:[M.bowlB,M.lunchFR,M.s1,M.stepD,M.creami]}
 ];
 const TP = 170;
 const TYPELBL = {lift:"Lift day", steps:"Steps day"};
 const TYPECOL = {lift:"var(--bronze)", steps:"var(--aegean)"};
-let active = 0;
+let active = (new Date().getDay()+6)%7;
 
 function renderRail(){
   document.getElementById("dayrail").innerHTML = DAYS.map((x,i)=>
@@ -250,6 +331,172 @@ function sel(i){ active=i; renderRail(); renderDay(); }
 function tog(i){
   const el = document.getElementById("w"+i);
   if(el) el.classList.toggle("open");
+}
+
+/* =================== APPRENTICESHIP =================== */
+const EDU = "https://app.edukate.ai/modules/";
+const PROG_START = new Date("2026-06-12"), PROG_END = new Date("2027-08-29");
+const EVENTS = [
+  {t:"Programme Kick Off", s:"2026-06-12T09:00:00Z", u:EDU+"14523/calendar_event/51376"},
+  {t:"Foundations of ML — Workshop 1", s:"2026-06-30T08:00:00Z", u:EDU+"14522/calendar_event/51372"},
+  {t:"Foundations of ML — Workshop 2", s:"2026-07-07T08:00:00Z", u:EDU+"14522/calendar_event/51374"},
+  {t:"Foundations of ML — Workshop 3", s:"2026-07-21T08:00:00Z", u:EDU+"14522/calendar_event/51373"},
+  {t:"Foundations of ML — Workshop 4", s:"2026-07-28T08:00:00Z", u:EDU+"14522/calendar_event/51375"},
+  {t:"Practical ML Techniques — Workshop 1", s:"2026-08-25T08:00:00Z", u:EDU+"14525/calendar_event/51379"},
+  {t:"Practical ML Techniques — Workshop 2", s:"2026-09-01T08:00:00Z", u:EDU+"14525/calendar_event/51377"},
+  {t:"Practical ML Techniques — Workshop 3", s:"2026-09-15T08:00:00Z", u:EDU+"14525/calendar_event/51380"},
+  {t:"Practical ML Techniques — Workshop 4", s:"2026-09-22T08:00:00Z", u:EDU+"14525/calendar_event/51378"},
+  {t:"EPA & Portfolio Development Webinar", s:"2026-10-06T08:30:00Z", u:EDU+"14527/calendar_event/51384"},
+  {t:"Product Management for AI — Workshop 1", s:"2026-10-20T08:00:00Z", u:EDU+"14526/calendar_event/51381"},
+  {t:"Product Management for AI — Workshop 2", s:"2026-11-10T09:00:00Z", u:EDU+"14526/calendar_event/51382"},
+  {t:"Neural Networks & Deep Learning — Workshop 1", s:"2026-12-01T09:00:00Z", u:EDU+"14529/calendar_event/51452"},
+  {t:"Neural Networks & Deep Learning — Workshop 2", s:"2026-12-08T09:00:00Z", u:EDU+"14529/calendar_event/51450"},
+  {t:"Neural Networks & Deep Learning — Workshop 3", s:"2026-12-15T09:00:00Z", u:EDU+"14529/calendar_event/51451"},
+  {t:"Explainability & Interpretability — Workshop 1", s:"2027-01-12T09:00:00Z", u:EDU+"14530/calendar_event/51453"},
+  {t:"Explainability & Interpretability — Workshop 2", s:"2027-01-26T09:00:00Z", u:EDU+"14530/calendar_event/51454"},
+  {t:"AI Ethics & Governance — Workshop 1", s:"2027-02-23T09:00:00Z", u:EDU+"14533/calendar_event/51459"},
+  {t:"AI Ethics & Governance — Workshop 2", s:"2027-03-09T09:00:00Z", u:EDU+"14533/calendar_event/51460"},
+  {t:"Generative AI & LLMs — Workshop 1", s:"2027-04-13T08:00:00Z", u:EDU+"14534/calendar_event/51461"},
+  {t:"Generative AI & LLMs — Workshop 2", s:"2027-04-20T08:00:00Z", u:EDU+"14534/calendar_event/51462"},
+  {t:"Generative AI & LLMs — Workshop 3", s:"2027-04-27T08:00:00Z", u:EDU+"14534/calendar_event/51463"},
+  {t:"Hackathon — Day 1", s:"2027-05-18T08:30:00Z", u:EDU+"14535/calendar_event/51464"},
+  {t:"Hackathon — Day 2", s:"2027-05-19T08:30:00Z", u:EDU+"14535/calendar_event/51465"},
+  {t:"ML in Production — Workshop 1", s:"2027-06-08T08:00:00Z", u:EDU+"14536/calendar_event/51467"},
+  {t:"ML in Production — Workshop 2", s:"2027-06-22T08:00:00Z", u:EDU+"14536/calendar_event/51468"},
+  {t:"ML in Production — Workshop 3", s:"2027-07-06T08:00:00Z", u:EDU+"14536/calendar_event/51466"},
+  {t:"End Point Assessment Webinar", s:"2027-07-20T08:30:00Z", u:EDU+"14527/calendar_event/51383"},
+  {t:"Securing & Optimising ML — Workshop 1", s:"2027-08-03T08:00:00Z", u:EDU+"14537/calendar_event/51471"},
+  {t:"Securing & Optimising ML — Workshop 2", s:"2027-08-10T08:00:00Z", u:EDU+"14537/calendar_event/51469"},
+  {t:"Securing & Optimising ML — Workshop 3", s:"2027-08-17T08:00:00Z", u:EDU+"14537/calendar_event/51470"}
+];
+const MODULES = [
+  {n:"Kick Off", a:"2026-05-30", b:"2026-06-27", id:14523},
+  {n:"Foundations of Machine Learning", a:"2026-06-12", b:"2026-08-07", id:14522},
+  {n:"Practical ML Techniques", a:"2026-08-08", b:"2026-10-03", id:14525},
+  {n:"Product Management for AI", a:"2026-10-04", b:"2026-11-14", id:14526},
+  {n:"Neural Networks & Deep Learning", a:"2026-11-15", b:"2026-12-27", id:14529},
+  {n:"Explainability & Interpretability", a:"2026-12-28", b:"2027-02-08", id:14530},
+  {n:"AI Ethics & Governance in Practice", a:"2027-02-09", b:"2027-03-23", id:14533},
+  {n:"Generative AI & LLMs", a:"2027-03-24", b:"2027-05-06", id:14534},
+  {n:"Hackathon", a:"2027-05-07", b:"2027-05-21", id:14535},
+  {n:"Machine Learning in Production", a:"2027-05-22", b:"2027-07-17", id:14536},
+  {n:"Securing & Optimising ML Systems", a:"2027-07-18", b:"2027-08-29", id:14537}
+];
+const LONGMODS = [
+  {n:"The Data Science Toolbox", a:"2026-05-30", b:"2027-05-15"},
+  {n:"Work-Based Learning & EPA", a:"2026-06-12", b:"2027-05-28", id:14527}
+];
+const MODS_KEY = "troyPlanModsDone";
+let showAllEvents = false;
+
+function modsDone(){
+  try { return JSON.parse(localStorage.getItem(MODS_KEY) || "{}"); }
+  catch { return {}; }
+}
+function toggleMod(n){
+  const d = modsDone();
+  d[n] = !d[n];
+  try { localStorage.setItem(MODS_KEY, JSON.stringify(d)); } catch {}
+  renderModules();
+}
+function fmtEvDate(iso){
+  return new Date(iso).toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+}
+function relDays(iso){
+  const days = Math.round((new Date(iso) - Date.now())/86400000);
+  if(days <= 0) return "today";
+  if(days === 1) return "tomorrow";
+  if(days < 14) return `in ${days} days`;
+  return `in ${Math.round(days/7)} wks`;
+}
+function renderEvents(){
+  const now = Date.now();
+  const future = EVENTS.filter(e=>new Date(e.s) > now - 6*3600000);
+  const list = showAllEvents ? future : future.slice(0,5);
+  document.getElementById("evwrap").innerHTML = list.length ? list.map(e=>`
+    <div class="ev">
+      <div>
+        <div class="en"><a href="${e.u}" target="_blank" rel="noopener">${e.t}</a></div>
+        <div class="ed">${fmtEvDate(e.s)}</div>
+      </div>
+      <div class="rel">${relDays(e.s)}</div>
+    </div>`).join("")
+    : `<div class="ed" style="padding:8px 0;color:var(--muted);font-size:13px">No scheduled events left — programme complete. 🎉</div>`;
+  const more = document.getElementById("evmore");
+  if(future.length <= 5) more.style.display = "none";
+  else more.textContent = showAllEvents ? "Show fewer" : `Show full schedule (${future.length})`;
+}
+function toggleAllEvents(){ showAllEvents = !showAllEvents; renderEvents(); }
+function modRow(m){
+  const now = Date.now(), a = new Date(m.a), b = new Date(m.b+"T23:59:59");
+  const done = modsDone()[m.n] || now > b;
+  const pct = done ? 100 : now < a ? 0 : Math.round((now-a)/(b-a)*100);
+  const state = done
+    ? `<span class="ok">✓ Complete</span>`
+    : now < a ? `Starts ${a.toLocaleDateString("en-GB",{day:"numeric",month:"short"})}`
+    : `<span class="on">In progress — ${pct}%</span>`;
+  const col = done ? "var(--good)" : now < a ? "var(--line)" : "var(--violet)";
+  const name = m.id ? `<a href="${EDU}${m.id}" target="_blank" rel="noopener">${m.n}</a>` : m.n;
+  const dates = `${a.toLocaleDateString("en-GB",{day:"numeric",month:"short"})} – ${new Date(m.b).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"2-digit"})}`;
+  return `
+    <div class="mod">
+      <div class="modtop">
+        <span class="mn">${name}</span>
+        <span class="md">${dates} · <span style="cursor:pointer" onclick="toggleMod('${m.n.replace(/'/g,"\\'")}')" title="Mark done">${done?"☑":"☐"}</span></span>
+      </div>
+      <div class="bar"><i style="width:${pct}%;background:${col}"></i></div>
+      <div class="mstate">${state}</div>
+    </div>`;
+}
+function renderModules(){
+  document.getElementById("modwrap").innerHTML = MODULES.map(modRow).join("");
+  document.getElementById("longmodwrap").innerHTML = LONGMODS.map(modRow).join("");
+  const pct = Math.max(0, Math.min(100, Math.round((Date.now()-PROG_START)/(PROG_END-PROG_START)*100)));
+  document.getElementById("progval").innerHTML = `${pct}% <small>of the 15 months</small>`;
+  document.getElementById("progbar").style.width = pct+"%";
+}
+
+/* ===================== TODAY CARD ===================== */
+function renderToday(){
+  const d = DAYS[active];
+  const today = new Date();
+  const dateStr = today.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+  const tp = d.meals.reduce((a,m)=>a+m.p,0);
+  const dow = today.getDay();
+  const isPrep = dow===0 || dow===3;
+  const w = (d.w!==undefined) ? WORKOUTS[d.w] : null;
+  const nextEv = EVENTS.find(e=>new Date(e.s) > Date.now() - 6*3600000);
+  const curMod = MODULES.find(m=>{
+    const now=Date.now(); return now>=new Date(m.a) && now<=new Date(m.b+"T23:59:59") && !modsDone()[m.n];
+  });
+  document.getElementById("todaycard").innerHTML = `
+    <div class="dayhead">
+      <span class="name">${dateStr}</span>
+      <span class="badge ${d.type}">${TYPELBL[d.type]}</span>
+    </div>
+    <div class="todaygrid">
+      <div class="tile">
+        <div class="lbl">Training</div>
+        <div class="big">${w ? w.title.split(" — ")[0]+" session" : "Rest — 10k steps"}</div>
+        <div class="sm">${w ? w.sub+' · <a href="#training">log weights ↓</a>' : "Incline treadmill walk covers a chunk: 10–12% · 5km/h · 25–30 min."}</div>
+      </div>
+      <div class="tile">
+        <div class="lbl">Food</div>
+        <div class="big">${d.meals.reduce((a,m)=>a+m.k,0).toLocaleString()} kcal · ${tp}g protein</div>
+        <div class="sm">${d.meals.some(m=>m.date) ? "Date with Holly today — targets exclude that meal." : "All boxed or air-fryer."} <a href="#meals">today's meals ↓</a></div>
+      </div>
+      ${isPrep ? `
+      <div class="tile">
+        <div class="lbl">Prep tonight</div>
+        <div class="big">${dow===0 ? "Sunday session — ~50 min" : "Wednesday session — ~30 min"}</div>
+        <div class="sm">${dow===0 ? "Week's rice + Mon–Wed lunches + Creami tubs." : "Thu–Sun lunches: 400g mince, 8 eggs, 4 rice portions."} <a href="#prep">details ↓</a></div>
+      </div>` : ""}
+      <div class="tile">
+        <div class="lbl">Apprenticeship</div>
+        <div class="big">${nextEv ? nextEv.t : "No upcoming events"}</div>
+        <div class="sm">${nextEv ? fmtEvDate(nextEv.s)+" · "+relDays(nextEv.s) : ""}${curMod ? `<br>Now studying: <a href="${EDU}${curMod.id}" target="_blank" rel="noopener">${curMod.n}</a>` : ""}</div>
+      </div>
+    </div>`;
 }
 
 /* ---------- Training data: 2 hard sets to failure per exercise ---------- */
@@ -534,15 +781,18 @@ function exportLog(){
   a.click();
   URL.revokeObjectURL(a.href);
 }
-document.querySelectorAll(".tab").forEach(t=>{
-  t.onclick = ()=>{
-    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
-    t.classList.add("on");
-    ["plan","train","prep","basket"].forEach(v=>
-      document.getElementById("view-"+(v==="plan"?"plan":v)).classList.toggle("hide", v!==t.dataset.v));
-  };
-});
-renderRail(); renderDay(); renderTraining();
+
+/* nav highlight on scroll */
+const navLinks = [...document.querySelectorAll("#nav a")];
+const sections = navLinks.map(a=>document.querySelector(a.getAttribute("href")));
+function navHL(){
+  let cur = 0;
+  sections.forEach((s,i)=>{ if(s && s.getBoundingClientRect().top < 90) cur = i; });
+  navLinks.forEach((a,i)=>a.classList.toggle("hot", i===cur));
+}
+addEventListener("scroll", navHL, {passive:true});
+
+renderRail(); renderDay(); renderTraining(); renderEvents(); renderModules(); renderToday(); navHL();
 if(gh.on()) syncNow();
 </script>
 </body>
